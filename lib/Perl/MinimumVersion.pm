@@ -749,12 +749,17 @@ sub _warnings_bundle {
         return '' unless $_[1]->isa('PPI::Statement::Include')
                      and $_[1]->pragma eq 'warnings';
 
+        unless ( defined $version ) {
+            $version = '5.006';
+            $obj = $_[1];
+        }
+
 	my @children = $_[1]->schildren();
 	foreach my $child ( @children[ 2 .. $#children ] ) {	# Skip 'use', 'warnings'
             local $_ = $child->content();
             while ( m/ \b ( [\w:]+ ) \b /smxg ) {   # /g because of qw{...}
                 my $v = $warnings{$1};
-                if ( defined( $v ) && ( ! defined( $version ) || $v > $version ) ) {
+                if ( defined( $v ) && $v > $version ) {
                     $version = $v;
                     $obj = $_[1];
                 }
